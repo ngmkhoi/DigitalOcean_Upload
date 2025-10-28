@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/digitalocean-spaces-manager/static/css/main.a4b9754c.css",
+    "main.js": "/digitalocean-spaces-manager/static/js/main.c5ff59f0.js",
+    "index.html": "/digitalocean-spaces-manager/index.html",
+    "main.a4b9754c.css.map": "/digitalocean-spaces-manager/static/css/main.a4b9754c.css.map",
+    "main.c5ff59f0.js.map": "/digitalocean-spaces-manager/static/js/main.c5ff59f0.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.a4b9754c.css",
+    "static/js/main.c5ff59f0.js"
+  ]
+}
