@@ -226,6 +226,25 @@ digitalocean-spaces-manager/
 
 ## 🐛 Troubleshooting
 
+### ❌ Lỗi 404 Sau Khi Deploy (JS/CSS không load)
+
+```
+Failed to load resource: the server responded with a status of 404
+main.xxxxx.js
+main.xxxxx.css
+```
+
+**Nguyên nhân**: GitHub Pages sử dụng Jekyll, bỏ qua files bắt đầu với `_`
+
+**Giải pháp**: File `.nojekyll` đã được thêm vào `public/` folder. Rebuild và deploy lại:
+
+```bash
+npm run build
+npm run deploy
+```
+
+Đợi 1-2 phút để GitHub Pages update, sau đó refresh browser (Ctrl+Shift+R để clear cache).
+
 ### ❌ Lỗi CORS
 
 ```

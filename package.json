@@ -1,7 +1,7 @@
 {
   "name": "digitalocean-spaces-manager",
   "version": "1.0.0",
-  "homepage": ".",
+  "homepage": "https://ngmkhoi.github.io/DigitalOcean_Upload",
   "private": true,
   "dependencies": {
     "aws-sdk": "^2.1691.0",
