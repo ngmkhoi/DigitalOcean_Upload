@@ -1,6 +1,6 @@
 # 🗄️ DigitalOcean Spaces Manager
 
-Modern web interface để quản lý files trên DigitalOcean Spaces. Build bằng React, deploy được lên GitHub Pages.
+Modern web interface để quản lý files trên DigitalOcean Spaces. Build bằng React with love.
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)
 ![React](https://img.shields.io/badge/react-18.2.0-blue)
