@@ -16,19 +16,24 @@ function App() {
   const [files, setFiles] = useState([]);
   const [folders, setFolders] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [isUploading, setIsUploading] = useState(false);
-  const [selectedFile, setSelectedFile] = useState(null);
   const [showNewFolder, setShowNewFolder] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
   const [notification, setNotification] = useState(null);
   const fileInputRef = useRef(null);
+
+  // New features state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedItems, setSelectedItems] = useState(new Set());
+  const [batchFiles, setBatchFiles] = useState([]);
+  const [batchUploadProgress, setBatchUploadProgress] = useState({});
+  const [isBatchUploading, setIsBatchUploading] = useState(false);
 
   // Load files when folder changes
   useEffect(() => {
     if (connected) {
       loadFiles();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentFolder, connected]);
 
   // Show notification
@@ -118,42 +123,6 @@ function App() {
     setFolderPath([]);
   };
 
-  // Handle file select
-  const handleFileSelect = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setSelectedFile(file);
-    }
-  };
-
-  // Upload file
-  const handleUpload = async () => {
-    if (!selectedFile) return;
-
-    setIsUploading(true);
-    setUploadProgress(0);
-
-    try {
-      const result = await spacesService.uploadFileWithProgress(
-        selectedFile,
-        currentFolder,
-        {},
-        (progress) => setUploadProgress(progress)
-      );
-
-      if (result.success) {
-        notify(`✅ Uploaded: ${selectedFile.name}`);
-        setSelectedFile(null);
-        if (fileInputRef.current) fileInputRef.current.value = '';
-        loadFiles();
-      }
-    } catch (error) {
-      notify('Upload failed: ' + error.message, 'error');
-    } finally {
-      setIsUploading(false);
-      setUploadProgress(0);
-    }
-  };
 
   // Delete file
   const handleDelete = async (file) => {
@@ -203,6 +172,111 @@ function App() {
       } catch (e) {}
     }
   }, []);
+
+  // Search filter
+  const filteredFiles = files.filter(file =>
+    file.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredFolders = folders.filter(folder =>
+    folder.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Multi-select handlers
+  const toggleSelectItem = (item) => {
+    const newSelected = new Set(selectedItems);
+    const itemKey = item.key || item.prefix;
+
+    if (newSelected.has(itemKey)) {
+      newSelected.delete(itemKey);
+    } else {
+      newSelected.add(itemKey);
+    }
+    setSelectedItems(newSelected);
+  };
+
+  const selectAll = () => {
+    const allKeys = new Set([
+      ...files.map(f => f.key),
+      ...folders.map(f => f.prefix)
+    ]);
+    setSelectedItems(allKeys);
+  };
+
+  const clearSelection = () => {
+    setSelectedItems(new Set());
+  };
+
+  const deleteSelected = async () => {
+    if (selectedItems.size === 0) return;
+
+    if (!window.confirm(`Delete ${selectedItems.size} selected items?`)) return;
+
+    const filesToDelete = files.filter(f => selectedItems.has(f.key));
+    let successCount = 0;
+
+    for (const file of filesToDelete) {
+      try {
+        const result = await spacesService.deleteFile(file.key);
+        if (result.success) successCount++;
+      } catch (error) {
+        console.error('Error deleting:', file.name, error);
+      }
+    }
+
+    notify(`🗑️ Deleted ${successCount} of ${filesToDelete.length} items`);
+    clearSelection();
+    loadFiles();
+  };
+
+  // Batch upload handlers
+  const handleBatchFileSelect = (e) => {
+    const files = Array.from(e.target.files);
+    setBatchFiles(files);
+  };
+
+  const removeBatchFile = (index) => {
+    setBatchFiles(batchFiles.filter((_, i) => i !== index));
+  };
+
+  const handleBatchUpload = async () => {
+    if (batchFiles.length === 0) return;
+
+    setIsBatchUploading(true);
+    const progress = {};
+
+    batchFiles.forEach((_, index) => {
+      progress[index] = 0;
+    });
+    setBatchUploadProgress(progress);
+
+    let successCount = 0;
+
+    for (let i = 0; i < batchFiles.length; i++) {
+      try {
+        await spacesService.uploadFileWithProgress(
+          batchFiles[i],
+          currentFolder,
+          {},
+          (percent) => {
+            setBatchUploadProgress(prev => ({
+              ...prev,
+              [i]: percent
+            }));
+          }
+        );
+        successCount++;
+      } catch (error) {
+        console.error('Error uploading:', batchFiles[i].name, error);
+      }
+    }
+
+    notify(`✅ Uploaded ${successCount} of ${batchFiles.length} files`);
+    setBatchFiles([]);
+    setBatchUploadProgress({});
+    setIsBatchUploading(false);
+    loadFiles();
+  };
 
   return (
     <div className="App">
@@ -338,10 +412,52 @@ function App() {
                   📁 New Folder
                 </button>
               </div>
+
+              <div className="toolbar-center">
+                <div className="search-box">
+                  <span className="search-icon">🔍</span>
+                  <input
+                    type="text"
+                    placeholder="Search files and folders..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="search-input"
+                  />
+                  {searchQuery && (
+                    <button
+                      className="search-clear"
+                      onClick={() => setSearchQuery('')}
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              </div>
+
               <button className="btn btn-secondary" onClick={loadFiles}>
                 🔄 Refresh
               </button>
             </div>
+
+            {/* Multi-select toolbar */}
+            {selectedItems.size > 0 && (
+              <div className="multi-select-toolbar">
+                <div className="multi-select-info">
+                  <span>{selectedItems.size} item(s) selected</span>
+                </div>
+                <div className="multi-select-actions">
+                  <button className="btn btn-secondary" onClick={selectAll}>
+                    Select All
+                  </button>
+                  <button className="btn btn-secondary" onClick={clearSelection}>
+                    Clear Selection
+                  </button>
+                  <button className="btn btn-danger" onClick={deleteSelected}>
+                    🗑️ Delete Selected
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* New Folder Input */}
             {showNewFolder && (
@@ -367,35 +483,69 @@ function App() {
 
             {/* Upload Area */}
             <div className="upload-area">
+              <div className="upload-tabs">
+                <div className="upload-tab active">
+                  📤 Batch Upload
+                </div>
+              </div>
+
               <div className="upload-box">
                 <input
                   ref={fileInputRef}
                   type="file"
-                  onChange={handleFileSelect}
+                  multiple
+                  onChange={handleBatchFileSelect}
                   className="file-input"
                 />
                 <div className="upload-icon">📤</div>
-                <p>{selectedFile ? selectedFile.name : 'Click or drag to upload'}</p>
+                <p>{batchFiles.length > 0 ? `${batchFiles.length} file(s) selected` : 'Click or drag to upload multiple files'}</p>
               </div>
-              {selectedFile && !isUploading && (
-                <div className="upload-actions">
-                  <button className="btn btn-primary" onClick={handleUpload}>
-                    🚀 Upload
-                  </button>
-                  <button className="btn btn-secondary" onClick={() => {
-                    setSelectedFile(null);
-                    if (fileInputRef.current) fileInputRef.current.value = '';
-                  }}>
-                    Cancel
-                  </button>
+
+              {batchFiles.length > 0 && !isBatchUploading && (
+                <div className="batch-file-list">
+                  {batchFiles.map((file, index) => (
+                    <div key={index} className="batch-file-item">
+                      <span className="batch-file-icon">📄</span>
+                      <span className="batch-file-name">{file.name}</span>
+                      <span className="batch-file-size">{spacesService.constructor.formatFileSize(file.size)}</span>
+                      <button
+                        className="batch-file-remove"
+                        onClick={() => removeBatchFile(index)}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                  <div className="batch-upload-actions">
+                    <button className="btn btn-primary" onClick={handleBatchUpload}>
+                      🚀 Upload All ({batchFiles.length})
+                    </button>
+                    <button className="btn btn-secondary" onClick={() => {
+                      setBatchFiles([]);
+                      if (fileInputRef.current) fileInputRef.current.value = '';
+                    }}>
+                      Clear All
+                    </button>
+                  </div>
                 </div>
               )}
-              {isUploading && (
-                <div className="progress-container">
-                  <div className="progress-bar">
-                    <div className="progress-fill" style={{width: `${uploadProgress}%`}} />
-                  </div>
-                  <div className="progress-text">{uploadProgress}%</div>
+
+              {isBatchUploading && (
+                <div className="batch-progress-container">
+                  {batchFiles.map((file, index) => (
+                    <div key={index} className="batch-progress-item">
+                      <div className="batch-progress-info">
+                        <span className="batch-progress-name">{file.name}</span>
+                        <span className="batch-progress-percent">{batchUploadProgress[index] || 0}%</span>
+                      </div>
+                      <div className="progress-bar">
+                        <div
+                          className="progress-fill"
+                          style={{width: `${batchUploadProgress[index] || 0}%`}}
+                        />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
@@ -409,16 +559,42 @@ function App() {
             ) : (
               <div className="files-grid">
                 {/* Folders */}
-                {folders.map((folder, index) => (
-                  <div key={index} className="file-card folder" onClick={() => navigateToFolder(folder)}>
-                    <div className="file-icon">📁</div>
-                    <div className="file-name">{folder.name}</div>
+                {filteredFolders.map((folder, index) => (
+                  <div
+                    key={index}
+                    className={`file-card folder ${selectedItems.has(folder.prefix) ? 'selected' : ''}`}
+                  >
+                    <div className="file-select-checkbox">
+                      <input
+                        type="checkbox"
+                        checked={selectedItems.has(folder.prefix)}
+                        onChange={(e) => {
+                          e.stopPropagation();
+                          toggleSelectItem(folder);
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </div>
+                    <div onClick={() => navigateToFolder(folder)}>
+                      <div className="file-icon">📁</div>
+                      <div className="file-name">{folder.name}</div>
+                    </div>
                   </div>
                 ))}
 
                 {/* Files */}
-                {files.map((file, index) => (
-                  <div key={index} className="file-card">
+                {filteredFiles.map((file, index) => (
+                  <div
+                    key={index}
+                    className={`file-card ${selectedItems.has(file.key) ? 'selected' : ''}`}
+                  >
+                    <div className="file-select-checkbox">
+                      <input
+                        type="checkbox"
+                        checked={selectedItems.has(file.key)}
+                        onChange={() => toggleSelectItem(file)}
+                      />
+                    </div>
                     <div className="file-icon">
                       {file.name.match(/\.(jpg|jpeg|png|gif)$/i) ? '🖼️' :
                        file.name.match(/\.(pdf)$/i) ? '📄' :
@@ -460,11 +636,15 @@ function App() {
                   </div>
                 ))}
 
-                {folders.length === 0 && files.length === 0 && (
+                {filteredFolders.length === 0 && filteredFiles.length === 0 && (
                   <div className="empty-state">
-                    <div className="empty-icon">📭</div>
-                    <p>This folder is empty</p>
-                    <p className="empty-hint">Upload files or create folders to get started</p>
+                    <div className="empty-icon">
+                      {searchQuery ? '🔍' : '📭'}
+                    </div>
+                    <p>{searchQuery ? 'No results found' : 'This folder is empty'}</p>
+                    <p className="empty-hint">
+                      {searchQuery ? 'Try a different search term' : 'Upload files or create folders to get started'}
+                    </p>
                   </div>
                 )}
               </div>
