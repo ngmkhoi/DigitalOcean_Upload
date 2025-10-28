@@ -1,28 +1,21 @@
 # 🗄️ DigitalOcean Spaces Manager
 
-Modern web interface để quản lý files trên DigitalOcean Spaces với đầy đủ tính năng: Batch Upload, Search, Multi-Select. Build bằng React, deploy được lên GitHub Pages.
+Modern web interface để quản lý files trên DigitalOcean Spaces. Build bằng React, deploy được lên GitHub Pages.
 
-![Version](https://img.shields.io/badge/version-2.0.0-blue)
+![Version](https://img.shields.io/badge/version-1.0.0-blue)
 ![React](https://img.shields.io/badge/react-18.2.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ## ✨ Features
 
-### Core Features
-- 📤 **Batch Upload** - Upload nhiều files cùng lúc với progress tracking từng file
-- 🔍 **Search** - Tìm kiếm files/folders real-time theo tên
-- ☑️ **Multi-Select** - Chọn nhiều items và xóa hàng loạt
-- 📁 **Folder Management** - Tạo folders và navigate qua folder structure
-- 🔗 **Copy URLs** - Copy CDN URLs một cách nhanh chóng
-- 👁️ **Preview Files** - Xem files trong tab mới
-- 🗑️ **Batch Delete** - Xóa nhiều files/folders cùng lúc
-
-### UI/UX Features
-- 💾 **Auto-save Credentials** - Lưu trong localStorage
-- 📊 **Progress Tracking** - Theo dõi tiến trình upload từng file
-- 📱 **Responsive Design** - Hoạt động tốt trên mọi thiết bị
-- 🎨 **Modern UI** - Gradient design với smooth animations
-- 🔒 **Secure** - Credentials chỉ lưu local, không gửi lên server
+- 📤 **Upload files** với progress tracking
+- 📁 **Tạo folders** và navigate qua folder structure
+- 🔗 **Copy URLs** (CDN URLs) một cách nhanh chóng
+- 👁️ **Preview files** trong tab mới
+- 🗑️ **Delete files** với confirmation
+- 💾 **Auto-save credentials** trong localStorage
+- 📱 **Responsive design** - hoạt động tốt trên mobile
+- 🔒 **Secure** - credentials chỉ lưu local, không gửi lên server nào khác
 
 ## 🚀 Quick Start (5 phút)
 
@@ -73,32 +66,69 @@ App sẽ mở tại `http://localhost:3000`
 2. Click **Connect**
 3. Upload file để test → Done! 🎉
 
-## 🎬 Key Features Demo
 
-### 1. 🔍 Search - Tìm Kiếm Real-time
-Gõ vào search box để filter files/folders ngay lập tức. Không cần nhấn Enter!
+## 📦 Build for Production
 
-```
-Gõ "image" → Chỉ hiện files có chữ "image"
-Gõ "2024"  → Chỉ hiện files có chữ "2024"
-```
+```bash
+# Build static files
+npm run build
 
-### 2. ☑️ Multi-Select - Chọn Nhiều & Xóa Hàng Loạt
-Click checkbox để chọn nhiều items, sau đó xóa tất cả cùng lúc.
-
-```
-✓ file1.jpg
-✓ file2.png
-✓ folder1
-→ Click "Delete Selected" → Xóa cả 3 items
+# Files sẽ được tạo trong folder `build/`
 ```
 
-### 3. 📤 Batch Upload - Upload Nhiều Files
-Upload 10, 20, 50 files cùng lúc với progress tracking từng file.
+## 🌐 Deploy to GitHub Pages
 
+### Lần Đầu Deploy
+
+**1. Setup Git Repository (nếu chưa có):**
+
+```bash
+git init
+git add .
+git commit -m "Initial commit"
+git remote add origin https://github.com/YOUR_USERNAME/digitalocean-spaces-manager.git
+git branch -M main
+git push -u origin main
 ```
-Select 10 files → Upload All → Watch progress bars
-→ All files uploaded!
+
+**2. Update package.json:**
+
+Mở `package.json` và sửa dòng `homepage`:
+
+```json
+{
+  "homepage": "https://YOUR_USERNAME.github.io/digitalocean-spaces-manager"
+}
+```
+
+**3. Deploy:**
+
+```bash
+npm run deploy
+```
+
+**4. Enable GitHub Pages:**
+
+1. Vào repository trên GitHub
+2. Settings → Pages
+3. Source: Deploy from a branch
+4. Branch: `gh-pages` → `/ (root)` → Save
+5. Đợi ~1-2 phút
+
+App sẽ live tại: `https://YOUR_USERNAME.github.io/digitalocean-spaces-manager`
+
+### Update Sau Này
+
+Khi có thay đổi code:
+
+```bash
+# Commit changes
+git add .
+git commit -m "Update: mô tả thay đổi"
+git push origin main
+
+# Redeploy
+npm run deploy
 ```
 
 ## 🎨 Usage
@@ -113,60 +143,15 @@ Select 10 files → Upload All → Watch progress bars
    - **Secret Key**: Your secret key
 3. Click **Connect**
 
-### 📤 Batch Upload
+### Upload Files
 
-**Upload nhiều files cùng lúc:**
-
-1. Click vào upload area hoặc drag & drop
-2. **Chọn nhiều files** (Cmd+Click hoặc Shift+Click)
-3. Xem danh sách files preview với tên và size
-4. Click **✕** để xóa file nào không muốn upload
-5. Click **🚀 Upload All (N)** để bắt đầu
-6. Theo dõi progress bar từng file
-7. Files sẽ xuất hiện trong folder sau khi upload xong
-
-**Tính năng:**
-- Upload không giới hạn số lượng files
-- Progress tracking riêng cho từng file
-- Xóa files khỏi batch trước khi upload
-- Notification tổng kết khi hoàn thành
-
-### 🔍 Search
-
-**Tìm kiếm files/folders:**
-
-1. Nhìn vào thanh toolbar giữa màn hình
-2. Gõ vào ô **"Search files and folders..."**
-3. Kết quả tự động filter real-time
-4. Click nút **✕** để clear search
-
-**Tính năng:**
-- Tìm kiếm real-time (không cần nhấn Enter)
-- Không phân biệt chữ hoa/thường
-- Filter cả files và folders
-- Hiện "No results found" khi không có kết quả
-
-### ☑️ Multi-Select & Batch Delete
-
-**Chọn và xóa nhiều items:**
-
-1. Click **checkbox** ở góc phải trên của file/folder
-2. Chọn nhiều items (mỗi item có checkbox riêng)
-3. Xem toolbar xanh hiện ra với số lượng items đã chọn
-4. Dùng các nút:
-   - **Select All** - Chọn tất cả items trong folder
-   - **Clear Selection** - Bỏ chọn tất cả
-   - **🗑️ Delete Selected** - Xóa tất cả items đã chọn
-
-**Tính năng:**
-- Visual feedback: items được chọn có viền xanh
-- Selection counter hiển thị số lượng
-- Xác nhận trước khi xóa hàng loạt
-- Animation mượt
+1. Click vào upload area hoặc drag & drop file
+2. Click **Upload**
+3. File sẽ được upload với progress bar
 
 ### Create Folder
 
-1. Click **📁 New Folder**
+1. Click **New Folder**
 2. Nhập tên folder
 3. Press Enter hoặc click **Create**
 
@@ -180,7 +165,13 @@ Select 10 files → Upload All → Watch progress bars
 
 1. Click icon 📋 trên file
 2. URL sẽ được copy vào clipboard
-3. Paste vào nơi cần dùng
+3. Paste vào DAG config hoặc nơi khác
+
+### Delete Files
+
+1. Click icon 🗑️
+2. Confirm deletion
+3. File sẽ bị xóa
 
 ## 🔒 Security Notes
 
@@ -198,16 +189,10 @@ Không nên dùng cho production với sensitive data!
 
 ## 🛠️ Technology Stack
 
-- **React 18** - UI framework với Hooks
-- **AWS SDK** - S3-compatible API cho DigitalOcean Spaces
-- **CSS3** - Modern styling với gradients, animations, transitions
-- **LocalStorage** - Lưu credentials an toàn
-
-### Key Features Implementation
-- **Search**: Real-time filtering với Array.filter()
-- **Multi-Select**: Set data structure cho efficient selection
-- **Batch Upload**: Promise-based parallel uploads với progress callbacks
-- **Responsive**: CSS Grid & Flexbox cho adaptive layouts
+- **React 18** - UI framework
+- **AWS SDK** - S3-compatible API
+- **CSS3** - Styling với gradients và animations
+- **LocalStorage** - Lưu credentials
 
 ## 📁 Project Structure
 
@@ -228,25 +213,135 @@ digitalocean-spaces-manager/
 
 ## 🎯 Features Roadmap
 
-### ✅ Completed
 - [x] Basic file upload/delete
 - [x] Folder management
 - [x] Copy URLs
 - [x] Progress tracking
-- [x] **Batch upload** (Upload nhiều files cùng lúc)
-- [x] **Search files** (Tìm kiếm real-time)
-- [x] **Multi-select operations** (Chọn và xóa hàng loạt)
-
-### 🔮 Future Ideas
-- [ ] File preview (images, PDFs)
+- [ ] Batch upload
+- [ ] File preview (images)
+- [ ] Search files
 - [ ] File metadata editing
 - [ ] Drag & drop folders
-- [ ] Move/Copy files between folders
-- [ ] Rename files
-- [ ] Download files
-- [ ] Public/Private toggle
-- [ ] Share links with expiration
-- [ ] Dark mode
+- [ ] Multi-select operations
+
+## 🐛 Troubleshooting
+
+### ❌ Lỗi 404 Sau Khi Deploy (JS/CSS không load)
+
+```
+Failed to load resource: the server responded with a status of 404
+main.xxxxx.js
+main.xxxxx.css
+```
+
+**Có 2 nguyên nhân chính:**
+
+**Nguyên nhân 1: Homepage không khớp với tên repository**
+
+Check `package.json`:
+```json
+"homepage": "https://YOUR_USERNAME.github.io/REPO_NAME"
+```
+
+Tên repository phải **GIỐNG CHÍNH XÁC** với tên trên GitHub!
+
+Ví dụ:
+- ❌ Sai: `homepage: "...github.io/my-app"` nhưng repo tên `My_App`
+- ✅ Đúng: `homepage: "...github.io/My_App"`
+
+**Fix:**
+1. Vào GitHub repository, copy chính xác tên repo
+2. Update `homepage` trong `package.json`
+3. Rebuild: `npm run deploy`
+
+**Nguyên nhân 2: GitHub Pages dùng Jekyll**
+
+GitHub Pages bỏ qua files bắt đầu với `_`
+
+**Fix:** File `.nojekyll` đã được thêm vào `public/` folder. Nếu vẫn lỗi:
+
+```bash
+# Kiểm tra file có trong build không
+ls -la build/.nojekyll
+
+# Nếu không có, tạo lại
+touch public/.nojekyll
+npm run deploy
+```
+
+Đợi 1-2 phút để GitHub Pages update, sau đó refresh browser (Ctrl+Shift+R để clear cache).
+
+### ❌ Lỗi CORS
+
+```
+Access to XMLHttpRequest has been blocked by CORS policy
+```
+
+**Nguyên nhân**: CORS chưa được enable trên Space
+
+**Giải pháp**: 
+1. Vào DigitalOcean → Space → Settings → CORS
+2. Add rule với Origins: `*`, Methods: `GET, PUT, POST, DELETE`
+3. Hoặc chạy: `./setup-cors.sh`
+
+### ❌ Upload Failed
+
+```
+Upload failed: The request signature we calculated does not match
+```
+
+**Nguyên nhân**: Credentials sai hoặc không đúng
+
+**Giải pháp**: 
+- Kiểm tra lại Access Key và Secret Key
+- Verify Space name và region chính xác
+- Re-generate keys nếu cần
+
+### ❌ Connection Failed
+
+```
+Failed to connect to Space
+```
+
+**Giải pháp**:
+1. Kiểm tra Space name (không có spaces, lowercase)
+2. Verify region (sgp1, nyc3, sfo3, etc.)
+3. Đảm bảo Space tồn tại và accessible
+4. Check network/firewall
+
+### ❌ Files Không Hiển Thị
+
+**Giải pháp**:
+- Click nút **Refresh** 
+- Kiểm tra lại credentials
+- Verify Space permissions (Read access)
+- Check console để xem error details
+
+### ❌ AWS CLI Errors (khi chạy script)
+
+```
+aws: command not found
+```
+
+**Giải pháp**: Cài AWS CLI
+```bash
+# macOS
+brew install awscli
+
+# Ubuntu/Debian
+sudo apt-get install awscli
+```
+
+```
+The AWS Access Key Id you provided does not exist
+```
+
+**Giải pháp**: Configure AWS CLI credentials
+```bash
+aws configure --profile digitalocean
+```
+
+Xem hướng dẫn chi tiết: [HUONG-DAN-AWS-CLI.md](HUONG-DAN-AWS-CLI.md)
 
 ## 📝 License
 
@@ -261,5 +356,11 @@ Pull requests are welcome!
 3. Commit your changes
 4. Push to the branch
 5. Open a Pull Request
+
+## 📧 Contact
+
+Có vấn đề? Tạo issue trên GitHub hoặc contact team.
+
+---
 
 Made with ❤️ for AI-Core DataFlow Team
