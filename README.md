@@ -234,12 +234,38 @@ main.xxxxx.js
 main.xxxxx.css
 ```
 
-**Nguyên nhân**: GitHub Pages sử dụng Jekyll, bỏ qua files bắt đầu với `_`
+**Có 2 nguyên nhân chính:**
 
-**Giải pháp**: File `.nojekyll` đã được thêm vào `public/` folder. Rebuild và deploy lại:
+**Nguyên nhân 1: Homepage không khớp với tên repository**
+
+Check `package.json`:
+```json
+"homepage": "https://YOUR_USERNAME.github.io/REPO_NAME"
+```
+
+Tên repository phải **GIỐNG CHÍNH XÁC** với tên trên GitHub!
+
+Ví dụ:
+- ❌ Sai: `homepage: "...github.io/my-app"` nhưng repo tên `My_App`
+- ✅ Đúng: `homepage: "...github.io/My_App"`
+
+**Fix:**
+1. Vào GitHub repository, copy chính xác tên repo
+2. Update `homepage` trong `package.json`
+3. Rebuild: `npm run deploy`
+
+**Nguyên nhân 2: GitHub Pages dùng Jekyll**
+
+GitHub Pages bỏ qua files bắt đầu với `_`
+
+**Fix:** File `.nojekyll` đã được thêm vào `public/` folder. Nếu vẫn lỗi:
 
 ```bash
-npm run build
+# Kiểm tra file có trong build không
+ls -la build/.nojekyll
+
+# Nếu không có, tạo lại
+touch public/.nojekyll
 npm run deploy
 ```
 
